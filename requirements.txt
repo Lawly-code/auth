@@ -1,4 +1,4 @@
-https://github.com/Lawly-code/database/tree/0.1.0
+git+https://github.com/Lawly-code/database.git@0.1.0#egg=lawly-db
 fastapi==0.115.12
 pre-commit==4.2.0
 PyJWT==2.10.1
