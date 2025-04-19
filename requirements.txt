@@ -2,3 +2,5 @@ https://github.com/Lawly-code/database/tree/0.1.0
 fastapi==0.115.12
 pre-commit==4.2.0
 PyJWT==2.10.1
+pydantic_settings==2.9.1
+uvicorn==0.34.2
