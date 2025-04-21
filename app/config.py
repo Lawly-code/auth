@@ -1,28 +1,17 @@
-import dataclasses
+from dataclasses import dataclass, field
 
-from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-class DBSettings(BaseSettings):
-    host: str
-    port: int
-    db: int
-    user: str
-    password: str
-
-    class Config:
-        env_prefix = "db_"
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+load_dotenv("./.env")
 
 
 class CiphersSettings(BaseSettings):
     salt: str
 
-    class Config:
-        env_prefix = "cipher_"
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_prefix="cipher_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
 
 class JWTSettings(BaseSettings):
@@ -31,16 +20,15 @@ class JWTSettings(BaseSettings):
     access_token_expire_minutes: int
     refresh_token_expire_minutes: int
 
-    class Config:
-        env_prefix = "jwt_"
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_prefix="jwt_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
 
-@dataclasses.dataclass
+@dataclass
 class Settings:
-    db_settings: DBSettings = DBSettings()
-    cipher_settings: CiphersSettings = CiphersSettings()
+    cipher_settings: CiphersSettings = field(default_factory=CiphersSettings)
+    jwt_settings: JWTSettings = field(default_factory=JWTSettings)
 
 
 settings = Settings()

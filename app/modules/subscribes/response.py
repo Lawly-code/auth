@@ -13,5 +13,3 @@ get_tariffs_response = {
         "model": list[UserSubscriptionDTO],
     },
 }
-
-

@@ -9,5 +9,5 @@ get_subscription_response = {
 
 get_user_info_response = {
     **base_response,
-    200: {"description": "Данные пользователя", "model": UserSubscriptionDTO}
+    200: {"description": "Данные пользователя", "model": UserSubscriptionDTO},
 }

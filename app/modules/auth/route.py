@@ -1,34 +1,71 @@
-from lawly_db.db_models.db_session import get_session
+from fastapi import APIRouter, Depends, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, status
+from lawly_db.db_models.db_session import get_session
 
-from modules.auth import login_response, register_response, logout_response, RegisterUserDTO, LoginUserDTO, \
-    register_user_description, login_user_description, logout_user_description
+
+from modules.auth import (
+    AuthTokenResponseDTO,
+    LoginUserWithIPDTO,
+    RegisterUserDTO,
+    RegisterUserWithIPDTO,
+    login_response,
+    login_user_description,
+    logout_response,
+    logout_user_description,
+    register_response,
+    register_user_description,
+)
+from services.auth_service import AuthService
+from services.services import auth_service_getter, ip_address_getter
 
 router = APIRouter(tags=["Авторизация"])
 
 
 @router.post(
     "/register",
-    response_model=RegisterUserDTO,
     summary="Регистрация пользователя",
     description=register_user_description,
-    status_code=status.HTTP_201_CREATED,
-    responses=register_response
+    responses=register_response,
+    response_model=AuthTokenResponseDTO,
 )
-async def register(session: AsyncSession = Depends(get_session)):
-    pass
+async def register(
+        register_user: RegisterUserDTO,
+        auth_service: AuthService = Depends(auth_service_getter),
+        ip_address: str = Depends(ip_address_getter),
+):
+    result = await auth_service.register(
+        register_user=RegisterUserWithIPDTO(ip=ip_address, **register_user.model_dump())
+    )
+    if not result:
+        return Response(
+            status_code=status.HTTP_409_CONFLICT,
+            content="Пользователь с таким email уже существует",
+        )
+    return result
 
 
 @router.post(
     "/login",
-    response_model=LoginUserDTO,
+    response_model=AuthTokenResponseDTO,
     summary="Авторизация пользователя",
     description=login_user_description,
-    responses=login_response
+    responses=login_response,
 )
-async def login(session: AsyncSession = Depends(get_session)):
-    pass
+async def login(
+        login_user_dto: LoginUserWithIPDTO,
+        session: AsyncSession = Depends(get_session),
+        auth_service: AuthService = Depends(auth_service_getter),
+        ip_address: str = Depends(ip_address_getter),
+):
+    result = await auth_service.login(
+        login_user=LoginUserWithIPDTO(ip=ip_address, **login_user_dto.model_dump())
+    )
+    if not result:
+        return Response(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content="Неверный логин или пароль",
+        )
+    return result
 
 
 @router.post(
@@ -36,7 +73,7 @@ async def login(session: AsyncSession = Depends(get_session)):
     summary="Выход пользователя",
     description=logout_user_description,
     responses=logout_response,
-    status_code=status.HTTP_202_ACCEPTED
+    status_code=status.HTTP_202_ACCEPTED,
 )
 async def logout(session: AsyncSession = Depends(get_session)):
     pass

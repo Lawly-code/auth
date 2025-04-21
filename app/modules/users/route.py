@@ -1,9 +1,14 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from lawly_db.db_models.db_session import get_session
+from modules.users import (
+    UserDTO,
+    UserSubscriptionDTO,
+    get_subscription_response,
+    get_user_info_description,
+    get_user_info_response,
+    subscription_form_description,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from modules.users import get_user_info_description, subscription_form_description, get_subscription_response, UserDTO, \
-    UserSubscriptionDTO, get_user_info_response
 
 router = APIRouter(tags=["Пользователи"])
 
@@ -13,11 +18,9 @@ router = APIRouter(tags=["Пользователи"])
     summary="Получение информации о текущем пользователе",
     description=get_user_info_description,
     response_model=UserDTO,
-    responses=get_user_info_response
+    responses=get_user_info_response,
 )
-async def get_current_user_info(
-        session: AsyncSession = Depends(get_session)
-):
+async def get_current_user_info(session: AsyncSession = Depends(get_session)):
     pass
 
 
@@ -26,7 +29,7 @@ async def get_current_user_info(
     summary="Получение информации о подписке пользователя",
     description=subscription_form_description,
     response_model=UserSubscriptionDTO,
-    responses=get_subscription_response
+    responses=get_subscription_response,
 )
 async def get_user_subscription_info(session: AsyncSession = Depends(get_session)):
     pass

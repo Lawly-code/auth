@@ -5,6 +5,6 @@ privacy_response = {
     **base_response,
     200: {
         "description": "Текст политики конфиденциальности",
-        "model": PrivacyPolicyDTO
-    }
+        "model": PrivacyPolicyDTO,
+    },
 }
