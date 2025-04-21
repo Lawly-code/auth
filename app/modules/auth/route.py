@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Response, status
 from lawly_db.db_models.db_session import get_session
 from modules.auth import (
     AuthTokenResponseDTO,
+    LoginUserDTO,
     LoginUserWithIPDTO,
     RegisterUserDTO,
     RegisterUserWithIPDTO,
@@ -50,8 +51,7 @@ async def register(
     responses=login_response,
 )
 async def login(
-    login_user_dto: LoginUserWithIPDTO,
-    session: AsyncSession = Depends(get_session),
+    login_user_dto: LoginUserDTO,
     auth_service: AuthService = Depends(auth_service_getter),
     ip_address: str = Depends(ip_address_getter),
 ):

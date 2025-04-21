@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from api.auth.auth_handler import sign_jwt
 from config import settings
@@ -22,18 +22,18 @@ class AuthService:
         self, login_user: LoginUserWithIPDTO
     ) -> AuthTokenResponseDTO | None:
         hashed_password = self.cipher_repo.hash_password(login_user.password)
-        user = self.user_repo.login(
+        user = await self.user_repo.login(
             email=login_user.email, hash_password=hashed_password
         )
         if not user:
             return None
+        if (
+            await self.refresh_session_repo.get_all_user_sessions_count(user_id=user.id)
+            >= settings.jwt_settings.max_user_sessions
+        ):
+            await self.refresh_session_repo.delete_all_user_sessions(user_id=user.id)
         access_token = sign_jwt(user_id=user.id)
-        refresh_expires = int(
-            (
-                datetime.utcnow()
-                + timedelta(minutes=settings.jwt_settings.refresh_token_expire_minutes)
-            ).timestamp()
-        )
+        refresh_expires = get_refresh_expires_timestamp()
         refresh_token = RefreshSession(
             user_id=user.id,
             refresh_token=uuid.uuid4(),
@@ -61,12 +61,7 @@ class AuthService:
         )
         await self.user_repo.save(entity=user, session=self.session)
         access_token = sign_jwt(user_id=user.id)
-        refresh_expires = int(
-            (
-                datetime.utcnow()
-                + timedelta(minutes=settings.jwt_settings.refresh_token_expire_minutes)
-            ).timestamp()
-        )
+        refresh_expires = get_refresh_expires_timestamp()
         refresh_token = RefreshSession(
             user_id=user.id,
             refresh_token=uuid.uuid4(),
@@ -80,3 +75,14 @@ class AuthService:
         return AuthTokenResponseDTO(
             refresh_token=str(refresh_token.refresh_token), access_token=access_token
         )
+
+
+def get_refresh_expires_timestamp() -> int:
+    """
+    Возвращает UTC timestamp истечения срока refresh токена.
+    Использует timezone-aware datetime объект.
+    """
+    expires_at = datetime.now(UTC) + timedelta(
+        minutes=settings.jwt_settings.refresh_token_expire_minutes
+    )
+    return int(expires_at.timestamp())

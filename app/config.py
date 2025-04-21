@@ -19,6 +19,7 @@ class JWTSettings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
     refresh_token_expire_minutes: int
+    max_user_sessions: int
 
     model_config = SettingsConfigDict(
         env_prefix="jwt_", env_file=".env", env_file_encoding="utf-8", extra="ignore"
