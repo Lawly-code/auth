@@ -1,8 +1,5 @@
-from fastapi import APIRouter, Depends, status, Response
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, Response, status
 from lawly_db.db_models.db_session import get_session
-
-
 from modules.auth import (
     AuthTokenResponseDTO,
     LoginUserWithIPDTO,
@@ -17,6 +14,7 @@ from modules.auth import (
 )
 from services.auth_service import AuthService
 from services.services import auth_service_getter, ip_address_getter
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(tags=["Авторизация"])
 
@@ -29,9 +27,9 @@ router = APIRouter(tags=["Авторизация"])
     response_model=AuthTokenResponseDTO,
 )
 async def register(
-        register_user: RegisterUserDTO,
-        auth_service: AuthService = Depends(auth_service_getter),
-        ip_address: str = Depends(ip_address_getter),
+    register_user: RegisterUserDTO,
+    auth_service: AuthService = Depends(auth_service_getter),
+    ip_address: str = Depends(ip_address_getter),
 ):
     result = await auth_service.register(
         register_user=RegisterUserWithIPDTO(ip=ip_address, **register_user.model_dump())
@@ -52,10 +50,10 @@ async def register(
     responses=login_response,
 )
 async def login(
-        login_user_dto: LoginUserWithIPDTO,
-        session: AsyncSession = Depends(get_session),
-        auth_service: AuthService = Depends(auth_service_getter),
-        ip_address: str = Depends(ip_address_getter),
+    login_user_dto: LoginUserWithIPDTO,
+    session: AsyncSession = Depends(get_session),
+    auth_service: AuthService = Depends(auth_service_getter),
+    ip_address: str = Depends(ip_address_getter),
 ):
     result = await auth_service.login(
         login_user=LoginUserWithIPDTO(ip=ip_address, **login_user_dto.model_dump())
