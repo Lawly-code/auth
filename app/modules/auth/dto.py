@@ -1,9 +1,10 @@
+import uuid
+
 from pydantic import BaseModel
 
 
 class LoginUserDTO(BaseModel):
     email: str
-    name: str
     password: str
     device_id: str
     device_os: str
@@ -31,3 +32,25 @@ class RegisterUserWithIPDTO(RegisterUserDTO):
 class AuthTokenResponseDTO(BaseModel):
     access_token: str
     refresh_token: str
+
+
+class TokenModelDTO(BaseModel):
+    access_token: str
+    refresh_token: str
+
+
+class RefreshTokenModelDTO(BaseModel):
+    device_id: str
+    device_os: str
+    device_name: str
+    device_id: str
+    refresh_token: uuid.UUID
+
+
+class RefreshTokenWithIPModelDTO(RefreshTokenModelDTO):
+    ip: str
+
+
+class LogoutDTO(BaseModel):
+    device_id: str
+    refresh_token: uuid.UUID

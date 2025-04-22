@@ -1,3 +1,5 @@
+import uuid
+
 from lawly_db.db_models import RefreshSession
 from repositories.base_repository import BaseRepository
 from sqlalchemy import func, select
@@ -34,3 +36,27 @@ class RefreshSessionRepository(BaseRepository):
         sessions = _.scalars().all()
         for session in sessions:
             await self.session.delete(session)
+
+    async def get_by_refresh_token(
+        self, refresh_token: uuid.UUID, device_id: str
+    ) -> model | None:
+        """
+        Возвращает сессию по refresh_token и device_id
+        :param refresh_token: refresh_token
+        :param device_id: device_id
+        :return: объект класса RefreshSession
+        """
+        query = select(self.model).where(
+            self.model.refresh_token == refresh_token, self.model.device_id == device_id
+        )
+        _ = await self.session.execute(query)
+        return _.scalar()
+
+    async def refresh_session_delete(self, refresh_session: model):
+        """
+        Удаляет сессию
+        :param refresh_session: объект класса RefreshSession
+        :return:
+        """
+        await self.session.delete(refresh_session)
+        await self.session.commit()

@@ -5,6 +5,7 @@ from api.auth.auth_handler import sign_jwt
 from config import settings
 from lawly_db.db_models import RefreshSession, User
 from modules.auth import AuthTokenResponseDTO, LoginUserWithIPDTO, RegisterUserWithIPDTO
+from modules.auth.dto import LogoutDTO, RefreshTokenWithIPModelDTO, TokenModelDTO
 from repositories.cipher_repository import CipherRepository
 from repositories.refresh_session_repository import RefreshSessionRepository
 from repositories.user_repository import UserRepository
@@ -75,6 +76,49 @@ class AuthService:
         return AuthTokenResponseDTO(
             refresh_token=str(refresh_token.refresh_token), access_token=access_token
         )
+
+    async def refresh_tokens(
+        self, refresh: RefreshTokenWithIPModelDTO
+    ) -> TokenModelDTO | None:
+        refresh_session = await self.refresh_session_repo.get_by_refresh_token(
+            refresh_token=refresh.refresh_token, device_id=refresh.device_id
+        )
+        if not refresh_session:
+            return None
+        if refresh_session.expires_in < datetime.now(UTC).timestamp():
+            return None
+        await self.refresh_session_repo.refresh_session_delete(
+            refresh_session=refresh_session
+        )
+        refresh_expires = get_refresh_expires_timestamp()
+        new_refresh_token = RefreshSession(
+            user_id=refresh_session.user_id,
+            refresh_token=uuid.uuid4(),
+            ip=refresh.ip,
+            device_os=refresh.device_os,
+            device_name=refresh.device_name,
+            device_id=refresh.device_id,
+            expires_in=refresh_expires,
+        )
+        await self.refresh_session_repo.save(
+            entity=new_refresh_token, session=self.session
+        )
+        access_token = sign_jwt(user_id=refresh_session.user_id)
+        return TokenModelDTO(
+            refresh_token=str(new_refresh_token.refresh_token),
+            access_token=access_token,
+        )
+
+    async def logout(self, logout_dto: LogoutDTO) -> bool:
+        refresh_session = await self.refresh_session_repo.get_by_refresh_token(
+            refresh_token=logout_dto.refresh_token, device_id=logout_dto.device_id
+        )
+        if not refresh_session:
+            return False
+        await self.refresh_session_repo.refresh_session_delete(
+            refresh_session=refresh_session
+        )
+        return True
 
 
 def get_refresh_expires_timestamp() -> int:
