@@ -38,7 +38,7 @@ class AuthService:
         refresh_token = RefreshSession(
             user_id=user.id,
             refresh_token=uuid.uuid4(),
-            ip=login_user.ip,
+            ip=str(login_user.ip),
             device_os=login_user.device_os,
             device_name=login_user.device_name,
             device_id=login_user.device_id,
@@ -66,7 +66,7 @@ class AuthService:
         refresh_token = RefreshSession(
             user_id=user.id,
             refresh_token=uuid.uuid4(),
-            ip=register_user.ip,
+            ip=str(register_user.ip),
             device_os=register_user.device_os,
             device_name=register_user.device_name,
             device_id=register_user.device_id,
@@ -94,7 +94,7 @@ class AuthService:
         new_refresh_token = RefreshSession(
             user_id=refresh_session.user_id,
             refresh_token=uuid.uuid4(),
-            ip=refresh.ip,
+            ip=str(refresh.ip),
             device_os=refresh.device_os,
             device_name=refresh.device_name,
             device_id=refresh.device_id,
