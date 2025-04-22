@@ -34,7 +34,7 @@ class AuthService:
         ):
             await self.refresh_session_repo.delete_all_user_sessions(user_id=user.id)
         access_token = sign_jwt(user_id=user.id)
-        refresh_expires = get_refresh_expires_timestamp()
+        refresh_expires = self.get_refresh_expires_timestamp()
         refresh_token = RefreshSession(
             user_id=user.id,
             refresh_token=uuid.uuid4(),
@@ -62,7 +62,7 @@ class AuthService:
         )
         await self.user_repo.save(entity=user, session=self.session)
         access_token = sign_jwt(user_id=user.id)
-        refresh_expires = get_refresh_expires_timestamp()
+        refresh_expires = self.get_refresh_expires_timestamp()
         refresh_token = RefreshSession(
             user_id=user.id,
             refresh_token=uuid.uuid4(),
@@ -90,7 +90,7 @@ class AuthService:
         await self.refresh_session_repo.refresh_session_delete(
             refresh_session=refresh_session
         )
-        refresh_expires = get_refresh_expires_timestamp()
+        refresh_expires = self.get_refresh_expires_timestamp()
         new_refresh_token = RefreshSession(
             user_id=refresh_session.user_id,
             refresh_token=uuid.uuid4(),
@@ -120,13 +120,13 @@ class AuthService:
         )
         return True
 
-
-def get_refresh_expires_timestamp() -> int:
-    """
-    Возвращает UTC timestamp истечения срока refresh токена.
-    Использует timezone-aware datetime объект.
-    """
-    expires_at = datetime.now(UTC) + timedelta(
-        minutes=settings.jwt_settings.refresh_token_expire_minutes
-    )
-    return int(expires_at.timestamp())
+    @staticmethod
+    def get_refresh_expires_timestamp() -> int:
+        """
+        Возвращает UTC timestamp истечения срока refresh токена.
+        Использует timezone-aware datetime объект.
+        """
+        expires_at = datetime.now(UTC) + timedelta(
+            minutes=settings.jwt_settings.refresh_token_expire_minutes
+        )
+        return int(expires_at.timestamp())
