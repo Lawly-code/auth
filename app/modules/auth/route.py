@@ -108,8 +108,8 @@ async def logout(
     result = await auth_service.logout(logout_dto=logout_dto)
     if not result:
         return Response(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content="Сессия не найдена",
+            status_code=status.HTTP_403_FORBIDDEN,
+            content="Неверные учетные данные",
         )
     return Response(
         status_code=status.HTTP_202_ACCEPTED,

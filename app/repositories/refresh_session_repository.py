@@ -47,7 +47,8 @@ class RefreshSessionRepository(BaseRepository):
         :return: объект класса RefreshSession
         """
         query = select(self.model).where(
-            self.model.refresh_token == refresh_token, self.model.device_id == device_id
+            self.model.refresh_token == str(refresh_token),
+            self.model.device_id == device_id,
         )
         _ = await self.session.execute(query)
         return _.scalar()

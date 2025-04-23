@@ -5,6 +5,18 @@ from pydantic import BaseModel, EmailStr, IPvAnyAddress, field_validator
 # Регулярки
 DEVICE_ID_REGEX = r'^(?:[A-Z0-9]+\.[A-Z0-9]+\.[A-Z0-9]+|[A-F0-9]+\-[A-F0-9]+\-[A-F0-9]+\-[A-F0-9]+\-[A-F0-9]+)$'
 DEVICE_OS_REGEX = r'^(android|ios)\s\d+$'
+# Только ASCII символы (латиница, цифры, спецсимволы)
+PASSWORD_REGEX = r'^[\x20-\x7E]+$'
+
+
+class PasswordValidationMixin:
+    @field_validator("password")
+    def validate_password(cls, value: str) -> str:
+        if not re.fullmatch(PASSWORD_REGEX, value):
+            raise ValueError(
+                "Password must contain only Latin characters and valid symbols."
+            )
+        return value
 
 
 # Отдельные миксины для валидации
@@ -35,7 +47,7 @@ class DeviceValidationMixin(DeviceIDValidationMixin, DeviceOSValidationMixin):
 # DTO-шки
 
 
-class LoginUserDTO(DeviceValidationMixin, BaseModel):
+class LoginUserDTO(PasswordValidationMixin, DeviceValidationMixin, BaseModel):
     email: EmailStr
     password: str
     device_id: str
@@ -47,7 +59,7 @@ class LoginUserWithIPDTO(LoginUserDTO):
     ip: IPvAnyAddress
 
 
-class RegisterUserDTO(DeviceValidationMixin, BaseModel):
+class RegisterUserDTO(PasswordValidationMixin, DeviceValidationMixin, BaseModel):
     email: EmailStr
     name: str
     password: str

@@ -1,35 +1,18 @@
 from httpx import AsyncClient
-from lawly_db.db_models import User
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from dto import RegisterDTO
 
-async def test_register_login_logout(ac: AsyncClient, session: AsyncSession):
-    resp_register = await ac.post(
-        "/api/v1/register",
-        json={
-            "email": "test_mail@gmail.com",
-            "name": "Николай Телешов",
-            "password": "суперсекретный_пароль",
-            "device_id": "4965483F-2297-4FAF-AD26-D6F2BA888684",
-            "device_os": "android 13",
-            "device_name": "samsung s23",
-            "agree_to_terms": True,
-        },
-    )
-    assert resp_register.status_code == 200
-    response_json = resp_register.json()
-    assert "access_token" in response_json
-    assert "refresh_token" in response_json
 
+async def test_login(ac: AsyncClient, register_dto: RegisterDTO, session: AsyncSession):
     resp_login = await ac.post(
         "/api/v1/login",
         json={
-            "email": "test_mail@gmail.com",
-            "password": "суперсекретный_пароль",
-            "device_id": "4965483F-2297-4FAF-AD26-D6F2BA888684",
-            "device_os": "android 13",
-            "device_name": "samsung s23",
+            "email": register_dto.user.email,
+            "password": "super_secret_password",
+            "device_id": register_dto.refresh_session.device_id,
+            "device_os": register_dto.refresh_session.device_os,
+            "device_name": register_dto.refresh_session.device_name,
         },
     )
     assert resp_login.status_code == 200
@@ -37,31 +20,78 @@ async def test_register_login_logout(ac: AsyncClient, session: AsyncSession):
     assert "access_token" in response_json
     assert "refresh_token" in response_json
 
-    resp_refresh_tokens = await ac.post(
-        "/api/v1/refresh-tokens",
+
+async def test_login_with_not_valide_email(ac: AsyncClient, session: AsyncSession):
+    resp_login = await ac.post(
+        "/api/v1/login",
         json={
+            "email": "test_mail",
+            "password": "super_secret_password",
             "device_id": "4965483F-2297-4FAF-AD26-D6F2BA888684",
             "device_os": "android 13",
             "device_name": "samsung s23",
-            "refresh_token": response_json["refresh_token"],
         },
     )
-    assert resp_refresh_tokens.status_code == 200
-    response_json = resp_refresh_tokens.json()
-    assert "access_token" in response_json
-    assert "refresh_token" in response_json
+    assert resp_login.status_code == 422
 
-    resp_logout = await ac.post(
-        "/api/v1/logout",
+
+async def test_login_with_wrong_device_id(ac: AsyncClient, session: AsyncSession):
+    resp_login = await ac.post(
+        "/api/v1/login",
         json={
-            "device_id": "4965483F-2297-4FAF-AD26-D6F2BA888684",
-            "refresh_token": response_json["refresh_token"],
+            "email": "test_mail@gmail.com",
+            "password": "super_secret_password",
+            "device_id": "4965483F-2297-4FAF-AD26",
+            "device_os": "android 13",
+            "device_name": "samsung s23",
         },
     )
-    assert resp_logout.status_code == 202
+    assert resp_login.status_code == 422
 
-    user = await session.execute(
-        select(User).where(User.email == "test_mail@gmail.com")
+
+async def test_login_with_wrong_email(
+    ac: AsyncClient, register_dto: RegisterDTO, session: AsyncSession
+):
+    resp_login = await ac.post(
+        "/api/v1/login",
+        json={
+            "email": "not_test_mail@gmail.com",
+            "password": "super_secret_password",
+            "device_id": register_dto.refresh_session.device_id,
+            "device_os": register_dto.refresh_session.device_os,
+            "device_name": register_dto.refresh_session.device_name,
+        },
     )
-    await session.delete(user.scalar_one())
-    await session.commit()
+    assert resp_login.status_code == 401
+
+
+async def test_login_with_wrong_password(
+    ac: AsyncClient, register_dto: RegisterDTO, session: AsyncSession
+):
+    resp_login = await ac.post(
+        "/api/v1/login",
+        json={
+            "email": register_dto.user.email,
+            "password": "not_super_secret_password",
+            "device_id": register_dto.refresh_session.device_id,
+            "device_os": register_dto.refresh_session.device_os,
+            "device_name": register_dto.refresh_session.device_name,
+        },
+    )
+    assert resp_login.status_code == 401
+
+
+async def test_login_with_not_valid_password(
+    ac: AsyncClient, register_dto: RegisterDTO, session: AsyncSession
+):
+    resp_login = await ac.post(
+        "/api/v1/login",
+        json={
+            "email": register_dto.user.email,
+            "password": "коля1234",
+            "device_id": register_dto.refresh_session.device_id,
+            "device_os": register_dto.refresh_session.device_os,
+            "device_name": register_dto.refresh_session.device_name,
+        },
+    )
+    assert resp_login.status_code == 422

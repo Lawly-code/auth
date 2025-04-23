@@ -15,7 +15,7 @@ register_response = {
 
 logout_response = {
     202: {"description": "Успешный выход из системы"},
-    404: {"description": "Сессия не найдена"},
+    403: {"description": "Неверные учетные данные"},
 }
 
 refresh_token_response = {
