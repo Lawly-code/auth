@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, Response, status
-from lawly_db.db_models.db_session import get_session
 from modules.auth import (
     AuthTokenResponseDTO,
     LoginUserDTO,
@@ -13,9 +12,16 @@ from modules.auth import (
     register_response,
     register_user_description,
 )
+from modules.auth.descriptions import refresh_token_description
+from modules.auth.dto import (
+    LogoutDTO,
+    RefreshTokenModelDTO,
+    RefreshTokenWithIPModelDTO,
+    TokenModelDTO,
+)
+from modules.auth.response import refresh_token_response
 from services.auth_service import AuthService
 from services.services import auth_service_getter, ip_address_getter
-from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(tags=["Авторизация"])
 
@@ -67,11 +73,45 @@ async def login(
 
 
 @router.post(
+    "/refresh-tokens",
+    response_model=TokenModelDTO,
+    summary="Обновление токенов",
+    description=refresh_token_description,
+    responses=refresh_token_response,
+)
+async def refresh_tokens(
+    refresh: RefreshTokenModelDTO,
+    auth_service: AuthService = Depends(auth_service_getter),
+    ip_address: str = Depends(ip_address_getter),
+):
+    result = await auth_service.refresh_tokens(
+        refresh=RefreshTokenWithIPModelDTO(ip=ip_address, **refresh.model_dump())
+    )
+    if not result:
+        return Response(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content="Неверные учетные данные",
+        )
+    return result
+
+
+@router.post(
     "/logout",
     summary="Выход пользователя",
     description=logout_user_description,
     responses=logout_response,
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def logout(session: AsyncSession = Depends(get_session)):
-    pass
+async def logout(
+    logout_dto: LogoutDTO, auth_service: AuthService = Depends(auth_service_getter)
+):
+    result = await auth_service.logout(logout_dto=logout_dto)
+    if not result:
+        return Response(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content="Неверные учетные данные",
+        )
+    return Response(
+        status_code=status.HTTP_202_ACCEPTED,
+        content="Выход из системы выполнен",
+    )
