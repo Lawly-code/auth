@@ -33,3 +33,14 @@ class UserRepository(BaseRepository):
         query = select(self.model).where(self.model.email == email)
         _ = await session.execute(query)
         return _.scalar()
+
+    async def get_user_by_id(self, user_id: int, session: AsyncSession) -> model:
+        """
+        Возвращает пользователя по id
+
+        :param user_id: id пользователя
+        :return: объект класса User
+        """
+        query = select(self.model).where(self.model.id == user_id)
+        _ = await session.execute(query)
+        return _.scalar()
