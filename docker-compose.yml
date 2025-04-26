@@ -12,5 +12,5 @@ services:
       - "8800:80"
 
 networks:
-  - lawly_db:
-      external: true
+  lawly_db:
+    external: true
