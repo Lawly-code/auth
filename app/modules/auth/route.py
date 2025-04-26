@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, Response, status
+
+from api.auth.auth_bearer import JWTHeader, JWTBearer
 from modules.auth import (
     AuthTokenResponseDTO,
     LoginUserDTO,
@@ -18,10 +20,11 @@ from modules.auth.dto import (
     RefreshTokenModelDTO,
     RefreshTokenWithIPModelDTO,
     TokenModelDTO,
+    LogoutWithUserIDDTO,
 )
 from modules.auth.response import refresh_token_response
 from services.auth_service import AuthService
-from services.services import auth_service_getter, ip_address_getter
+from shared.utils import ip_address_getter
 
 router = APIRouter(tags=["Авторизация"])
 
@@ -35,7 +38,7 @@ router = APIRouter(tags=["Авторизация"])
 )
 async def register(
     register_user: RegisterUserDTO,
-    auth_service: AuthService = Depends(auth_service_getter),
+    auth_service: AuthService = Depends(AuthService),
     ip_address: str = Depends(ip_address_getter),
 ):
     result = await auth_service.register(
@@ -58,7 +61,7 @@ async def register(
 )
 async def login(
     login_user_dto: LoginUserDTO,
-    auth_service: AuthService = Depends(auth_service_getter),
+    auth_service: AuthService = Depends(AuthService),
     ip_address: str = Depends(ip_address_getter),
 ):
     result = await auth_service.login(
@@ -81,7 +84,7 @@ async def login(
 )
 async def refresh_tokens(
     refresh: RefreshTokenModelDTO,
-    auth_service: AuthService = Depends(auth_service_getter),
+    auth_service: AuthService = Depends(AuthService),
     ip_address: str = Depends(ip_address_getter),
 ):
     result = await auth_service.refresh_tokens(
@@ -103,15 +106,17 @@ async def refresh_tokens(
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def logout(
-    logout_dto: LogoutDTO, auth_service: AuthService = Depends(auth_service_getter)
+    logout_dto: LogoutDTO,
+    auth_service: AuthService = Depends(AuthService),
+    token: JWTHeader = Depends(JWTBearer()),
 ):
-    result = await auth_service.logout(logout_dto=logout_dto)
+    result = await auth_service.logout(
+        logout_dto=LogoutWithUserIDDTO(user_id=token.user_id, **logout_dto.model_dump())
+    )
     if not result:
         return Response(
-            status_code=status.HTTP_403_FORBIDDEN,
-            content="Неверные учетные данные",
+            status_code=status.HTTP_403_FORBIDDEN, content="Неверные учетные данные"
         )
     return Response(
-        status_code=status.HTTP_202_ACCEPTED,
-        content="Выход из системы выполнен",
+        status_code=status.HTTP_202_ACCEPTED, content="Выход из системы выполнен"
     )

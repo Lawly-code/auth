@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Depends
-from lawly_db.db_models.db_session import get_session
+from fastapi import APIRouter, Depends, status, Response
+
+from api.auth.auth_bearer import JWTHeader, JWTBearer
 from modules.users import (
-    UserDTO,
-    UserSubscriptionDTO,
-    get_subscription_response,
+    UserInfoDTO,
     get_user_info_description,
     get_user_info_response,
-    subscription_form_description,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
+from modules.users.enum import GetUserInfoEnum
+from services.user_service import UserService
 
 router = APIRouter(tags=["Пользователи"])
 
@@ -17,19 +16,21 @@ router = APIRouter(tags=["Пользователи"])
     "/user",
     summary="Получение информации о текущем пользователе",
     description=get_user_info_description,
-    response_model=UserDTO,
+    status_code=status.HTTP_200_OK,
+    response_model=UserInfoDTO,
     responses=get_user_info_response,
 )
-async def get_current_user_info(session: AsyncSession = Depends(get_session)):
-    pass
-
-
-@router.get(
-    "/user/subscription",
-    summary="Получение информации о подписке пользователя",
-    description=subscription_form_description,
-    response_model=UserSubscriptionDTO,
-    responses=get_subscription_response,
-)
-async def get_user_subscription_info(session: AsyncSession = Depends(get_session)):
-    pass
+async def get_current_user_info(
+    user_service: UserService = Depends(UserService),
+    token: JWTHeader = Depends(JWTBearer()),
+):
+    result = await user_service.get_user_info_service(user_id=token.user_id)
+    if result == GetUserInfoEnum.ACCESS_DENIED:
+        return Response(
+            status_code=status.HTTP_403_FORBIDDEN, content="Пользователь не найден"
+        )
+    if result == GetUserInfoEnum.NOT_SUBSCRIBED:
+        return Response(
+            status_code=status.HTTP_409_CONFLICT, content="У пользователя нет подписки"
+        )
+    return result

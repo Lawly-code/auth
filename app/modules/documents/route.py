@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from modules.documents import PrivacyPolicyDTO, privacy_policy_description
+from config import privacy_policy_text
 
 router = APIRouter(tags=["Документы"])
 
@@ -17,6 +18,4 @@ router = APIRouter(tags=["Документы"])
     },
 )
 async def get_privacy_policy():
-    return PrivacyPolicyDTO(
-        content="<h1>Политика конфиденциальности</h1><p>Текст...</p>"
-    )
+    return PrivacyPolicyDTO(content=privacy_policy_text)

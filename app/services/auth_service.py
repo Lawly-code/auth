@@ -1,11 +1,18 @@
 import uuid
 from datetime import UTC, datetime, timedelta
 
+from fastapi import Depends
+from lawly_db.db_models.db_session import get_session
+
 from api.auth.auth_handler import sign_jwt
 from config import settings
 from lawly_db.db_models import RefreshSession, User
 from modules.auth import AuthTokenResponseDTO, LoginUserWithIPDTO, RegisterUserWithIPDTO
-from modules.auth.dto import LogoutDTO, RefreshTokenWithIPModelDTO, TokenModelDTO
+from modules.auth.dto import (
+    RefreshTokenWithIPModelDTO,
+    TokenModelDTO,
+    LogoutWithUserIDDTO,
+)
 from repositories.cipher_repository import CipherRepository
 from repositories.refresh_session_repository import RefreshSessionRepository
 from repositories.user_repository import UserRepository
@@ -13,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AuthService:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession = Depends(get_session)):
         self.session = session
         self.user_repo = UserRepository(session)
         self.refresh_session_repo = RefreshSessionRepository(session)
@@ -81,7 +88,9 @@ class AuthService:
         self, refresh: RefreshTokenWithIPModelDTO
     ) -> TokenModelDTO | None:
         refresh_session = await self.refresh_session_repo.get_by_refresh_token(
-            refresh_token=refresh.refresh_token, device_id=refresh.device_id
+            refresh_token=refresh.refresh_token,
+            device_id=refresh.device_id,
+            user_id=refresh.user_id,
         )
         if not refresh_session:
             return None
@@ -109,9 +118,11 @@ class AuthService:
             access_token=access_token,
         )
 
-    async def logout(self, logout_dto: LogoutDTO) -> bool:
+    async def logout(self, logout_dto: LogoutWithUserIDDTO) -> bool:
         refresh_session = await self.refresh_session_repo.get_by_refresh_token(
-            refresh_token=logout_dto.refresh_token, device_id=logout_dto.device_id
+            refresh_token=logout_dto.refresh_token,
+            device_id=logout_dto.device_id,
+            user_id=logout_dto.user_id,
         )
         if not refresh_session:
             return False
