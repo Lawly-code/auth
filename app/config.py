@@ -1,10 +1,7 @@
 import os
 from dataclasses import dataclass, field
 
-from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-load_dotenv("./.env")
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
