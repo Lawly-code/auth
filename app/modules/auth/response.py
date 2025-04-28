@@ -1,7 +1,7 @@
-from modules.auth import AuthTokenResponseDTO, LoginUserDTO
+from modules.auth import AuthTokenResponseDTO
 
 login_response = {
-    200: {"description": "Успешная аутентификация", "model": LoginUserDTO},
+    200: {"description": "Успешная аутентификация", "model": AuthTokenResponseDTO},
     401: {"description": "Неверные учетные данные"},
 }
 

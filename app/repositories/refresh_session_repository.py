@@ -38,7 +38,7 @@ class RefreshSessionRepository(BaseRepository):
             await self.session.delete(session)
 
     async def get_by_refresh_token(
-        self, user_id: int, refresh_token: uuid.UUID, device_id: str
+        self, refresh_token: uuid.UUID, device_id: str
     ) -> model | None:
         """
         Возвращает сессию по refresh_token и device_id
@@ -49,7 +49,6 @@ class RefreshSessionRepository(BaseRepository):
         query = select(self.model).where(
             self.model.refresh_token == str(refresh_token),
             self.model.device_id == device_id,
-            user_id == self.model.user_id,
         )
         _ = await self.session.execute(query)
         return _.scalar()

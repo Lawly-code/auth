@@ -87,7 +87,6 @@ class RefreshTokenModelDTO(DeviceValidationMixin, BaseModel):
     device_os: str
     device_name: str
     refresh_token: uuid.UUID
-    user_id: int
 
 
 class RefreshTokenWithIPModelDTO(RefreshTokenModelDTO):

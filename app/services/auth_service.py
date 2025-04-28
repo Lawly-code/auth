@@ -90,7 +90,6 @@ class AuthService:
         refresh_session = await self.refresh_session_repo.get_by_refresh_token(
             refresh_token=refresh.refresh_token,
             device_id=refresh.device_id,
-            user_id=refresh.user_id,
         )
         if not refresh_session:
             return None
@@ -122,7 +121,6 @@ class AuthService:
         refresh_session = await self.refresh_session_repo.get_by_refresh_token(
             refresh_token=logout_dto.refresh_token,
             device_id=logout_dto.device_id,
-            user_id=logout_dto.user_id,
         )
         if not refresh_session:
             return False
