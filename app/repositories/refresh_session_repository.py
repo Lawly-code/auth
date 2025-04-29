@@ -1,3 +1,4 @@
+import time
 import uuid
 
 from lawly_db.db_models import RefreshSession
@@ -21,7 +22,9 @@ class RefreshSessionRepository(BaseRepository):
         :param user_id: id пользователя
         :return: количество сессий пользователя
         """
-        query = select(func.count(self.model.id)).where(self.model.user_id == user_id)
+        query = select(func.count(self.model.id)).where(
+            self.model.user_id == user_id, self.model.expires_in < time.time()
+        )
         _ = await self.session.execute(query)
         return int(_.scalar())
 
