@@ -20,6 +20,7 @@ async def test_refresh_tokens(
             "device_id": register_dto.refresh_session.device_id,
             "device_os": register_dto.refresh_session.device_os,
             "device_name": register_dto.refresh_session.device_name,
+            "user_id": register_dto.user.id,
         },
     )
     assert resp_refresh.status_code == 200
@@ -74,6 +75,7 @@ async def test_refresh_tokens_with_run_out_time(ac: AsyncClient, session: AsyncS
             "device_id": refresh_session.device_id,
             "device_os": refresh_session.device_os,
             "device_name": refresh_session.device_name,
+            "user_id": user.id,
         },
     )
     assert resp_refresh.status_code == 403

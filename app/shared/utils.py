@@ -1,8 +1,5 @@
-from fastapi import Depends, Request
+from fastapi import Request
 from fastapi.datastructures import Headers
-from lawly_db.db_models.db_session import get_session
-from services.auth_service import AuthService
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def extract_request_data(headers: Headers) -> str:
@@ -29,7 +26,3 @@ def ip_address_getter(request: Request) -> str:
     if not host:
         host = request.client.host
     return host
-
-
-def auth_service_getter(session: AsyncSession = Depends(get_session)):
-    return AuthService(session=session)

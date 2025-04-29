@@ -2,51 +2,50 @@ import re
 import uuid
 from pydantic import BaseModel, EmailStr, IPvAnyAddress, field_validator
 
-# Регулярки
-DEVICE_ID_REGEX = r'^(?:[A-Z0-9]+\.[A-Z0-9]+\.[A-Z0-9]+|[A-F0-9]+\-[A-F0-9]+\-[A-F0-9]+\-[A-F0-9]+\-[A-F0-9]+)$'
+DEVICE_ID_REGEX = r'^(?:[A-Z0-9]+\.[A-Z0-9]+\.[A-Z0-9]+|[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12})$'
 DEVICE_OS_REGEX = r'^(android|ios)\s\d+$'
-# Только ASCII символы (латиница, цифры, спецсимволы)
 PASSWORD_REGEX = r'^[\x20-\x7E]+$'
 
 
+# Миксины с валидаторами, можно и как обычные классы
 class PasswordValidationMixin:
-    @field_validator("password")
+    @field_validator("password", mode="before")
+    @classmethod
     def validate_password(cls, value: str) -> str:
         if not re.fullmatch(PASSWORD_REGEX, value):
             raise ValueError(
-                "Password must contain only Latin characters and valid symbols."
+                "Пароль должен содержать только латинские символы и допустимые спецсимволы."
             )
         return value
 
 
-# Отдельные миксины для валидации
 class DeviceIDValidationMixin:
-    @field_validator("device_id")
+    @field_validator("device_id", mode="before")
+    @classmethod
     def validate_device_id(cls, value: str) -> str:
         if not re.fullmatch(DEVICE_ID_REGEX, value):
-            raise ValueError("Invalid device_id format.")
+            raise ValueError("Неверный формат идентификатора устройства.")
         return value
 
 
 class DeviceOSValidationMixin:
-    @field_validator("device_os")
+    @field_validator("device_os", mode="before")
+    @classmethod
     def validate_device_os(cls, value: str) -> str:
         normalized = value.strip().lower()
         if not re.fullmatch(DEVICE_OS_REGEX, normalized):
             raise ValueError(
-                "device_os must be in format 'Android <version>' or 'iOS <version>'"
+                "Поле device_os должно быть в формате 'Android <версия>' или 'iOS <версия>'."
             )
         return value
 
 
-# Общий миксин, если нужна валидация и ID, и OS
+# Комбинирующий миксин
 class DeviceValidationMixin(DeviceIDValidationMixin, DeviceOSValidationMixin):
     pass
 
 
-# DTO-шки
-
-
+# DTO модели
 class LoginUserDTO(PasswordValidationMixin, DeviceValidationMixin, BaseModel):
     email: EmailStr
     password: str
@@ -97,3 +96,7 @@ class RefreshTokenWithIPModelDTO(RefreshTokenModelDTO):
 class LogoutDTO(DeviceIDValidationMixin, BaseModel):
     device_id: str
     refresh_token: uuid.UUID
+
+
+class LogoutWithUserIDDTO(LogoutDTO):
+    user_id: int

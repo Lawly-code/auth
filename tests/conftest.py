@@ -94,6 +94,7 @@ async def register_dto() -> AsyncGenerator[RegisterDTO, None]:
         )
         session.add(user)
         await session.commit()
+        await session.refresh(user)
         expires_at = (
             datetime.now(UTC)
             + timedelta(minutes=settings.jwt_settings.refresh_token_expire_minutes)

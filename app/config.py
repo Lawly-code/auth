@@ -1,6 +1,14 @@
+import os
 from dataclasses import dataclass, field
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PRIVACY_POLICY_PATH = os.path.join(BASE_DIR, 'data', 'privacy-policy.md')
+
+with open(PRIVACY_POLICY_PATH, 'r', encoding='utf-8') as file:
+    privacy_policy_text = file.read()
 
 
 class CiphersSettings(BaseSettings):

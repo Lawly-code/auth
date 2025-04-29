@@ -18,10 +18,8 @@ class TariffDTO(BaseModel):
     features: list[str]
 
 
-class UserSubscriptionDTO(BaseModel):
-    id: int
+class UserInfoDTO(BaseModel):
     user_id: int
     tariff: TariffDTO
     start_date: datetime
     end_date: datetime
-    days_left: int

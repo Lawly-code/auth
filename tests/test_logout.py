@@ -1,6 +1,7 @@
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.auth.auth_handler import sign_jwt
 from dto import RegisterDTO
 
 
@@ -9,11 +10,13 @@ async def test_logout(
 ):
     resp_login = await ac.post(
         "/api/v1/logout",
+        headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={
             "refresh_token": str(register_dto.refresh_session.refresh_token),
             "device_id": register_dto.refresh_session.device_id,
         },
     )
+
     assert resp_login.status_code == 202
     refresh_login = await ac.post(
         "/api/v1/refresh-tokens",
@@ -22,6 +25,7 @@ async def test_logout(
             "device_name": register_dto.refresh_session.device_name,
             "device_os": register_dto.refresh_session.device_os,
             "device_id": register_dto.refresh_session.device_id,
+            "user_id": register_dto.user.id,
         },
     )
     assert refresh_login.status_code == 403
@@ -32,6 +36,7 @@ async def test_logout_with_invalid_device_id(
 ):
     resp_login = await ac.post(
         "/api/v1/logout",
+        headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={
             "refresh_token": str(register_dto.refresh_session.refresh_token),
             "device_name": register_dto.refresh_session.device_name,
