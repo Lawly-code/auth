@@ -1,6 +1,8 @@
 services:
   app:
     restart: always
+    depends_on:
+      - db
     build:
       dockerfile: ../Dockerfile
       context: app/
