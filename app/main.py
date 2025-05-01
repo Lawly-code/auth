@@ -8,7 +8,7 @@ from lawly_db.db_models.db_session import global_init
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await global_init()  # 👈 здесь всё что ты делал в startup
+    await global_init()
     yield
 
 
