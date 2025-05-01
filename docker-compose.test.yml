@@ -7,8 +7,6 @@ services:
       - lawly_db
     env_file:
       - .test_env
-    ports:
-      - "8800:80"
 
   test_db:
     image: postgres:14.5
