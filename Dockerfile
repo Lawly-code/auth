@@ -2,7 +2,7 @@ FROM python:3.12-alpine
 ENV TZ "Europe/Moscow"
 WORKDIR /home/api
 RUN apk update
-RUN apk add git
+RUN apk add git build-base g++ linux-headers python3-dev
 RUN python -m pip install --upgrade pip
 ADD requirements.txt .
 RUN pip install -U -r requirements.txt

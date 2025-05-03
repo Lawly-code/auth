@@ -28,14 +28,6 @@ async def test_subscribe(
         headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={
             "tariff_id": tariff.id,
-            "start_date": datetime.now().isoformat(),
-            "end_date": (datetime.now() + timedelta(days=30)).isoformat(),
-            "count_lawyers": tariff.consultations_count,
-            "consultations_total": tariff.consultations_count,
-            "consultations_used": 0,
-            "can_user_ai": tariff.ai_access,
-            "can_create_custom_templates": tariff.custom_templates,
-            "unlimited_documents": tariff.unlimited_docs,
         },
     )
     assert resp_subscribe.status_code == 201
@@ -63,14 +55,6 @@ async def test_subscribe_with_invalid_tariff_id(
         headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={
             "tariff_id": 99999,
-            "start_date": datetime.now().isoformat(),
-            "end_date": (datetime.now() + timedelta(days=30)).isoformat(),
-            "count_lawyers": tariff.consultations_count,
-            "consultations_total": tariff.consultations_count,
-            "consultations_used": 0,
-            "can_user_ai": tariff.ai_access,
-            "can_create_custom_templates": tariff.custom_templates,
-            "unlimited_documents": tariff.unlimited_docs,
         },
     )
     assert resp_subscribe.status_code == 409

@@ -3,7 +3,7 @@ from lawly_db.db_models.db_session import get_session
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from modules.users import UserInfoDTO, TariffDTO
+from modules.users.dto import UserInfoDTO, TariffDTO
 from modules.users.enum import GetUserInfoEnum
 from repositories.subscribe_repository import SubscribeRepository
 from repositories.user_repository import UserRepository

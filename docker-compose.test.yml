@@ -1,6 +1,6 @@
 services:
   test_app:
-    restart: no
+    restart: "no"
     build:
       dockerfile: ./Dockerfile-test
     networks:
@@ -8,9 +8,19 @@ services:
     env_file:
       - .test_env
 
+  test_grpc_service:
+    build:
+      context: .
+      dockerfile: Dockerfile-grpc
+    restart: "no"
+    env_file:
+      - .test_env
+    networks:
+      - lawly_db
+
   test_db:
     image: postgres:14.5
-    restart: always
+    restart: "no"
     networks:
       - lawly_db
     environment:

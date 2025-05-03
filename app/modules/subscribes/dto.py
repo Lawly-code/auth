@@ -5,15 +5,6 @@ from pydantic import field_validator
 from datetime import datetime
 
 
-class DateRangeValidationMixin:
-    @field_validator("end_date")
-    def validate_date_range(cls, end_date: datetime, info):
-        start_date = info.data.get("start_date")
-        if start_date and end_date <= start_date:
-            raise ValueError("end_date must be later than start_date.")
-        return end_date
-
-
 class TariffDTO(BaseModel):
     id: int
     name: str
@@ -38,16 +29,8 @@ class TariffDTO(BaseModel):
         from_attributes = True
 
 
-class SubscriptionDTO(DateRangeValidationMixin, BaseModel):
+class SubscriptionDTO(BaseModel):
     tariff_id: int
-    start_date: datetime
-    end_date: datetime
-    count_lawyers: int = 0
-    consultations_total: int = 0
-    consultations_used: int = 0
-    can_user_ai: bool = False
-    can_create_custom_templates: bool = False
-    unlimited_documents: bool = False
 
 
 class SubscriptionWithUserIdDTO(SubscriptionDTO, BaseModel):
