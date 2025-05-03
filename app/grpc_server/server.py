@@ -1,10 +1,10 @@
-import asyncio
 import grpc
 import logging
 from typing import Optional
 
 from lawly_db.db_models.db_session import create_session
 
+from api import router
 from protos.user_service import user_service_pb2 as user_pb2
 from protos.user_service import user_service_pb2_grpc as user_pb2_grpc
 from services.subscribe_service import SubscribeService
@@ -160,12 +160,7 @@ class AsyncGRPCServer:
 
 # Функция для запуска асинхронного сервера
 async def run_server():
+    router
     server = AsyncGRPCServer()
     await server.start()
     await server.wait_for_termination()
-
-
-# Основная функция для запуска
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    asyncio.run(run_server())
