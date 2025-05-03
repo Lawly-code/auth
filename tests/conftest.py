@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
 from lawly_db.db_models import User, RefreshSession
 from lawly_db.db_models.db_session import get_session, Base
+from protos.user_service.client import UserServiceClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
 
@@ -72,6 +73,11 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
         yield ac
+
+
+@pytest.fixture(scope="session")
+async def user_grpc_client() -> AsyncGenerator[UserServiceClient, None]:
+    yield UserServiceClient(host="test_grpc_service", port=50051)
 
 
 @pytest.fixture(scope="session")
