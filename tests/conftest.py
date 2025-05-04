@@ -49,19 +49,9 @@ app.dependency_overrides[get_session] = override_get_async_session
 @pytest.fixture(autouse=True, scope='session')
 async def prepare_database():
     async with engine_test.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield
-    # async with engine_test.begin() as conn:
-    #     await conn.run_sync(Base.metadata.drop_all)
-
-
-# # SETUP
-# @pytest.fixture(scope='session')
-# def event_loop(request):
-#     """Create an instance of the default event loop for each test case."""
-#     loop = asyncio.get_event_loop_policy().new_event_loop()
-#     yield loop
-#     loop.close()
 
 
 client = TestClient(app)
@@ -77,7 +67,9 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
 
 @pytest.fixture(scope="session")
 async def user_grpc_client() -> AsyncGenerator[UserServiceClient, None]:
-    yield UserServiceClient(host="test_grpc_service", port=50051)
+    client = UserServiceClient(host="test_grpc_service", port=50051)
+    yield client
+    await client.close()
 
 
 @pytest.fixture(scope="session")

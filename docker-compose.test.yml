@@ -5,6 +5,7 @@ services:
       dockerfile: ./Dockerfile-test
     networks:
       - lawly_db
+      - lawly_grpc
     env_file:
       - .test_env
 
@@ -17,6 +18,7 @@ services:
       - .test_env
     networks:
       - lawly_db
+      - lawly_grpc
 
   test_db:
     image: postgres:14.5
@@ -29,3 +31,4 @@ services:
 
 networks:
   lawly_db:
+  lawly_grpc:

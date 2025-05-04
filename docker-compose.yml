@@ -6,6 +6,7 @@ services:
       context: app/
     networks:
       - lawly_db
+      - lawly_grpc
     env_file:
       - app/.env
     ports:
@@ -21,6 +22,7 @@ services:
     env_file:
       - app/.env
     networks:
+      - lawly_grpc
       - lawly_db
     depends_on:
       - app
