@@ -12,7 +12,7 @@ services:
     ports:
       - "127.0.0.1:8800:80"
 
-  grpc_service:
+  user_grpc_service:
     build:
       context: .
       dockerfile: Dockerfile-grpc
