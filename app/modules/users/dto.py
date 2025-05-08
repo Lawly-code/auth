@@ -16,6 +16,11 @@ class TariffDTO(BaseModel):
     description: str
     price: int
     features: list[str]
+    consultations_count: int
+    ai_access: bool
+    custom_templates: bool
+    unlimited_docs: bool
+    is_base: bool
 
 
 class UserInfoDTO(BaseModel):

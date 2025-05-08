@@ -15,6 +15,7 @@ class TariffDTO(BaseModel):
     ai_access: bool = False
     custom_templates: bool = False
     unlimited_docs: bool = False
+    is_base: bool
 
     @field_validator("features", mode="before")
     def parse_features(cls, value):
