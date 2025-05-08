@@ -78,6 +78,6 @@ async def test_refresh_tokens_with_run_out_time(ac: AsyncClient, session: AsyncS
             "user_id": user.id,
         },
     )
-    assert resp_refresh.status_code == 403
+    assert resp_refresh.status_code == 401
     await session.delete(user)
     await session.commit()

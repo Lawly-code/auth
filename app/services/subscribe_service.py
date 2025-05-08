@@ -37,7 +37,9 @@ class SubscribeService:
             user_id=subscribe_dto.user_id,
             tariff_id=tariff.id,
             start_date=datetime.datetime.now(),
-            end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+            end_date=datetime.datetime.now() + datetime.timedelta(days=30)
+            if not tariff.is_base
+            else None,
             consultations_total=tariff.consultations_count,
             can_user_ai=tariff.ai_access,
             can_create_custom_templates=tariff.custom_templates,
@@ -49,7 +51,9 @@ class SubscribeService:
     async def get_user_subscription_service(
         self, user_id: int
     ) -> GetUserSubscriptionWithUserIdDTO | GetSubscribesEnum:
-        subscription = await self.subscribe_repo.get_user_subscription(user_id=user_id)
+        subscription = await self.subscribe_repo.get_actual_subscribe_by_user_id(
+            user_id=user_id
+        )
         if not subscription:
             return GetSubscribesEnum.NOT_FOUND
         if subscription.user_id != user_id:

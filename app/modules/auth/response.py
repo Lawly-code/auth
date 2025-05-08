@@ -15,10 +15,10 @@ register_response = {
 
 logout_response = {
     202: {"description": "Успешный выход из системы"},
-    403: {"description": "Неверные учетные данные"},
+    401: {"description": "Неверные учетные данные"},
 }
 
 refresh_token_response = {
     200: {"description": "Токены успешно обновлены", "model": AuthTokenResponseDTO},
-    403: {"description": "Неверные учетные данные"},
+    401: {"description": "Неверные учетные данные"},
 }

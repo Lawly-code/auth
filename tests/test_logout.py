@@ -28,7 +28,7 @@ async def test_logout(
             "user_id": register_dto.user.id,
         },
     )
-    assert refresh_login.status_code == 403
+    assert refresh_login.status_code == 401
 
 
 async def test_logout_with_invalid_device_id(
@@ -57,7 +57,7 @@ async def test_logout_with_not_match_token(ac: AsyncClient, register_dto: Regist
             "device_id": register_dto.refresh_session.device_id,
         },
     )
-    assert resp_login.status_code == 403
+    assert resp_login.status_code == 401
 
 
 async def test_logout_with_not_match_device_id(
@@ -72,4 +72,4 @@ async def test_logout_with_not_match_device_id(
             "device_id": "4965483F-2297-4FAF-AD26-D6F2BA888888",
         },
     )
-    assert resp_login.status_code == 403
+    assert resp_login.status_code == 401
