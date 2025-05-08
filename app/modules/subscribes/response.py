@@ -11,7 +11,7 @@ get_subscription_response = {
     **base_response,
     200: {"description": "Информация о подписке", "model": GetUserSubscriptionDTO},
     404: {"description": "Подписка не найдена"},
-    403: {"description": "Нет доступа к подписке"},
+    401: {"description": "Нет доступа к подписке"},
 }
 
 get_tariffs_response = {

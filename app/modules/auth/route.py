@@ -92,7 +92,7 @@ async def refresh_tokens(
     )
     if not result:
         return Response(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             content="Неверные учетные данные",
         )
     return result
@@ -115,7 +115,7 @@ async def logout(
     )
     if not result:
         return Response(
-            status_code=status.HTTP_403_FORBIDDEN, content="Неверные учетные данные"
+            status_code=status.HTTP_401_UNAUTHORIZED, content="Неверные учетные данные"
         )
     return Response(
         status_code=status.HTTP_202_ACCEPTED, content="Выход из системы выполнен"
