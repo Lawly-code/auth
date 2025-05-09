@@ -41,7 +41,7 @@ class SubscriptionWithUserIdDTO(SubscriptionDTO, BaseModel):
 class GetUserSubscriptionDTO(BaseModel):
     tariff: TariffDTO
     start_date: datetime
-    end_date: datetime
+    end_date: datetime | None = None
     count_lawyers: int
     consultations_total: int
     consultations_used: int

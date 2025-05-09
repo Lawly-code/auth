@@ -1,9 +1,13 @@
+import logging
 from datetime import datetime
 
 from lawly_db.db_models import Subscribe
 from sqlalchemy import select
 from repositories.base_repository import BaseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logging.basicConfig(level=logging.INFO)
+__log__ = logging.getLogger(__name__)
 
 
 class SubscribeRepository(BaseRepository):
@@ -40,8 +44,11 @@ class SubscribeRepository(BaseRepository):
             return subscription
 
         # Иначе ищем базовую подписку
-        query = select(self.model).where(
+        query_base = select(self.model).where(
             self.model.user_id == user_id, self.model.is_base.is_(True)
         )
-        result = await self.session.execute(query)
-        return result.scalar()
+
+        result_base = await self.session.execute(query_base)
+        subscription = result_base.scalar()
+
+        return subscription
