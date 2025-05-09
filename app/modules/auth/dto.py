@@ -2,8 +2,15 @@ import re
 import uuid
 from pydantic import BaseModel, EmailStr, IPvAnyAddress, field_validator
 
-# DEVICE_ID_REGEX = r'^(?:[A-Z0-9]+\.[A-Z0-9]+\.[A-Z0-9]+|[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12})$'
-DEVICE_ID_REGEX = r'^.*$'
+DEVICE_ID_REGEX = (
+    r'^(?:'
+    r'[A-Z0-9]+\.[A-Z0-9]+\.[A-Z0-9]+'
+    r'|'
+    r'[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}'
+    r'|'
+    r'[A-Z0-9]+\.[0-9]{6}\.[0-9]{3}(?:\.[A-Z0-9]+)?'
+    r')$'
+)
 DEVICE_OS_REGEX = r'^(android\s\d+|ios\s\d+(\.\d+)?)$'
 PASSWORD_REGEX = r'^[\x20-\x7E]+$'
 
