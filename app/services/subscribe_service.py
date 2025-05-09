@@ -44,6 +44,7 @@ class SubscribeService:
             can_user_ai=tariff.ai_access,
             can_create_custom_templates=tariff.custom_templates,
             unlimited_documents=tariff.unlimited_docs,
+            is_base=tariff.is_base,
         )
         await self.subscribe_repo.save(entity=subscribe, session=self.session)
         return SubscribeStatusEnum.SUCCESS
