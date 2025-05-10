@@ -1,10 +1,22 @@
 from httpx import AsyncClient
-from lawly_db.db_models import User
+from lawly_db.db_models import User, Tariff
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def test_register(ac: AsyncClient, session: AsyncSession):
+    tariff = Tariff(
+        name="Базовый",
+        description="Базовый тариф",
+        price=0,
+        consultations_count=0,
+        ai_access=False,
+        is_base=True,
+        custom_templates=False,
+        unlimited_docs=False,
+    )
+    session.add(tariff)
+    await session.commit()
     resp_register = await ac.post(
         "/api/v1/register",
         json={
@@ -24,6 +36,8 @@ async def test_register(ac: AsyncClient, session: AsyncSession):
     user = await session.execute(
         select(User).where(User.email == "test_mail@gmail.com")
     )
+    await session.delete(tariff)
+    await session.commit()
     await session.delete(user.scalar_one())
     await session.commit()
 
@@ -77,6 +91,19 @@ async def test_register_with_wrong_device_os(ac: AsyncClient, session: AsyncSess
 
 
 async def test_re_register(ac: AsyncClient, session: AsyncSession):
+    tariff = Tariff(
+        name="Базовый",
+        description="Базовый тариф",
+        price=0,
+        consultations_count=0,
+        ai_access=False,
+        is_base=True,
+        custom_templates=False,
+        unlimited_docs=False,
+    )
+    session.add(tariff)
+    await session.commit()
+
     resp_register = await ac.post(
         "/api/v1/register",
         json={
@@ -107,6 +134,8 @@ async def test_re_register(ac: AsyncClient, session: AsyncSession):
         },
     )
     assert resp_re_register.status_code == 409
+    await session.delete(tariff)
+    await session.commit()
     user = await session.execute(
         select(User).where(User.email == "test_mail@gmail.com")
     )
