@@ -6,7 +6,7 @@ from lawly_db.db_models.db_session import get_session
 
 from api.auth.auth_handler import sign_jwt
 from config import settings
-from lawly_db.db_models import RefreshSession, User
+from lawly_db.db_models import RefreshSession, User, Subscribe
 from modules.auth import AuthTokenResponseDTO, LoginUserWithIPDTO, RegisterUserWithIPDTO
 from modules.auth.dto import (
     RefreshTokenWithIPModelDTO,
@@ -15,6 +15,8 @@ from modules.auth.dto import (
 )
 from repositories.cipher_repository import CipherRepository
 from repositories.refresh_session_repository import RefreshSessionRepository
+from repositories.subscribe_repository import SubscribeRepository
+from repositories.tariff_repository import TariffRepository
 from repositories.user_repository import UserRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +27,8 @@ class AuthService:
         self.user_repo = UserRepository(session)
         self.refresh_session_repo = RefreshSessionRepository(session)
         self.cipher_repo = CipherRepository()
+        self.subscribe_repo = SubscribeRepository(session)
+        self.tariff_repo = TariffRepository(session)
 
     async def login(
         self, login_user: LoginUserWithIPDTO
@@ -80,6 +84,20 @@ class AuthService:
             expires_in=refresh_expires,
         )
         await self.refresh_session_repo.save(entity=refresh_token, session=self.session)
+
+        tariff = await self.tariff_repo.get_base_tariff()
+        subscribe = Subscribe(
+            user_id=user.id,
+            tariff_id=tariff.id,
+            start_date=datetime.now(),
+            end_date=None,
+            consultations_total=tariff.consultations_count,
+            can_user_ai=tariff.ai_access,
+            can_create_custom_templates=tariff.custom_templates,
+            unlimited_documents=tariff.unlimited_docs,
+            is_base=tariff.is_base,
+        )
+        await self.subscribe_repo.save(entity=subscribe, session=self.session)
         return AuthTokenResponseDTO(
             refresh_token=str(refresh_token.refresh_token), access_token=access_token
         )
