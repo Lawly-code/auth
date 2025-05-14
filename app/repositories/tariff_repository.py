@@ -30,3 +30,12 @@ class TariffRepository(BaseRepository):
         query = select(self.model)
         _ = await self.session.execute(query)
         return list(_.scalars().all())
+
+    async def get_base_tariff(self) -> Tariff | None:
+        """
+        Возвращает базовый тариф
+        :return: объект класса Tariff
+        """
+        query = select(self.model).where(self.model.is_base.is_(True))
+        result = await self.session.execute(query)
+        return result.scalar()
