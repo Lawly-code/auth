@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, constr
+
+FCM_TOKEN_REGEX = r'^[\w\-:.]+$'
 
 
 class UserDTO(BaseModel):
@@ -28,3 +30,14 @@ class UserInfoDTO(BaseModel):
     tariff: TariffDTO
     start_date: datetime
     end_date: datetime | None = None
+
+
+class UpdateFCMTokenDTO(BaseModel):
+    fcm_token: constr(
+        strip_whitespace=True, min_length=100, max_length=512, pattern=FCM_TOKEN_REGEX
+    )
+    device_id: str
+
+
+class UpdateFCMTokenWithUserIdDTO(UpdateFCMTokenDTO):
+    user_id: int
