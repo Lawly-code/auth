@@ -10,6 +10,12 @@ get_subscription_response = {
 get_user_info_response = {
     **base_response,
     200: {"description": "Данные пользователя", "model": UserInfoDTO},
-    403: {"description": "Пользователь не найден"},
+    401: {"description": "Пользователь не найден"},
     409: {"description": "У пользователя нет подписки"},
+}
+
+create_or_update_fcm_token_response = {
+    **base_response,
+    200: {"description": "FCM токен успешно обновлён"},
+    401: {"description": "Пользователь не найден"},
 }
