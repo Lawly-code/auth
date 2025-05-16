@@ -100,4 +100,4 @@ async def get_available_tariffs(
         return Response(
             status_code=status.HTTP_404_NOT_FOUND, content="Нет доступных тарифов"
         )
-    return await subscribe_service.get_all_tariffs_service()
+    return result
