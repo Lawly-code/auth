@@ -68,7 +68,9 @@ class UserServiceServicer(user_pb2_grpc.UserServiceServicer):
                     "user_id": user_info.user_id,
                     "tariff": tariff,
                     "start_date": user_info.start_date.isoformat(),
-                    "end_date": user_info.end_date.isoformat(),
+                    "end_date": user_info.end_date.isoformat()
+                    if user_info.end_date
+                    else None,
                 }
 
                 if subscription not in (
