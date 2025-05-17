@@ -27,6 +27,8 @@ class TariffDTO(BaseModel):
 
 class UserInfoDTO(BaseModel):
     user_id: int
+    name: str
+    email: str
     tariff: TariffDTO
     start_date: datetime
     end_date: datetime | None = None

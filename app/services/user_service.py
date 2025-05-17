@@ -28,6 +28,8 @@ class UserService:
             return GetUserInfoEnum.NOT_SUBSCRIBED
         return UserInfoDTO(
             user_id=user.id,
+            name=user.name,
+            email=user.email,
             tariff=TariffDTO.model_validate(subscribe.tariff, from_attributes=True),
             start_date=subscribe.start_date,
             end_date=subscribe.end_date,
