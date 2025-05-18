@@ -2,3 +2,4 @@ register_user_description = "Создание нового аккаунта по
 login_user_description = "Аутентификация существующего пользователя"
 logout_user_description = "Завершение сессии пользователя (инвалидация токена)"
 refresh_token_description = "Обновление токенов доступа и обновления"
+login_lawyer_description = "Авторизация юриста"

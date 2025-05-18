@@ -7,6 +7,8 @@ from lawly_db.db_models.db_session import create_session
 from api import router
 from protos.user_service import user_service_pb2 as user_pb2
 from protos.user_service import user_service_pb2_grpc as user_pb2_grpc
+
+from modules.subscribes.enum import WriteOffSubscriptionEnum
 from services.subscribe_service import SubscribeService
 from services.user_service import UserService
 from modules.users.enum import GetUserInfoEnum
@@ -97,6 +99,49 @@ class UserServiceServicer(user_pb2_grpc.UserServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f"Внутренняя ошибка сервера: {str(e)}")
             return user_pb2.UserInfoResponse()
+
+    async def WriteOffConsultation(self, request, context):
+        """
+        Списание консультации
+        """
+        try:
+            user_id = request.user_id
+            self.logger.info(
+                f"GRPC запрос WriteOffConsultation для пользователя {user_id}"
+            )
+
+            # Создаем новую сессию для запроса
+            async with create_session() as session:
+                # Создаем сервисы с новой сессией
+                subscribe_service = SubscribeService(session)
+
+                # Списываем консультацию через существующий сервис
+                result = await subscribe_service.write_off_consultation(user_id=user_id)
+
+                if result == GetUserInfoEnum.NOT_SUBSCRIBED:
+                    context.set_code(grpc.StatusCode.FAILED_PRECONDITION)
+                    context.set_details("У пользователя нет подписки")
+                    return user_pb2.WriteOffResponse()
+                if result == WriteOffSubscriptionEnum.BASE_TARIFF:
+                    context.set_code(grpc.StatusCode.FAILED_PRECONDITION)
+                    context.set_details("У пользователя базовая подписка")
+                    return user_pb2.WriteOffResponse()
+                if result == WriteOffSubscriptionEnum.CONSULTATIONS_EXCEEDED:
+                    context.set_code(grpc.StatusCode.FAILED_PRECONDITION)
+                    context.set_details(
+                        "У пользователя превышено количество консультаций"
+                    )
+                    return user_pb2.WriteOffResponse()
+
+                return user_pb2.WriteOffResponse(success=True)
+
+        except Exception as e:
+            self.logger.error(
+                f"Ошибка при обработке GRPC запроса WriteOffConsultation: {str(e)}"
+            )
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Внутренняя ошибка сервера: {str(e)}")
+            return user_pb2.WriteOffResponse()
 
 
 class AsyncGRPCServer:
