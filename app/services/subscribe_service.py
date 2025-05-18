@@ -8,7 +8,11 @@ from modules.subscribes.dto import (
     SubscriptionWithUserIdDTO,
     GetUserSubscriptionWithUserIdDTO,
 )
-from modules.subscribes.enum import GetSubscribesEnum, SubscribeStatusEnum
+from modules.subscribes.enum import (
+    GetSubscribesEnum,
+    SubscribeStatusEnum,
+    WriteOffSubscriptionEnum,
+)
 from modules.users.dto import TariffDTO
 from repositories.subscribe_repository import SubscribeRepository
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -68,3 +72,25 @@ class SubscribeService:
         return [
             TariffDTO.model_validate(tariff, from_attributes=True) for tariff in tariffs
         ]
+
+    async def write_off_consultation(self, user_id: int) -> WriteOffSubscriptionEnum:
+        """
+        Списание консультации
+        :param user_id: ID пользователя
+        :return: Статус списания
+        """
+        subscription = await self.subscribe_repo.get_actual_subscribe_by_user_id(
+            user_id=user_id
+        )
+        if not subscription:
+            return WriteOffSubscriptionEnum.NOT_SUBSCRIBED
+
+        if subscription.is_base:
+            return WriteOffSubscriptionEnum.BASE_TARIFF
+
+        if subscription.consultations_used + 1 > subscription.consultations_total:
+            return WriteOffSubscriptionEnum.CONSULTATIONS_EXCEEDED
+
+        subscription.consultations_used += 1
+        await self.subscribe_repo.save(entity=subscription, session=self.session)
+        return WriteOffSubscriptionEnum.SUCCESS

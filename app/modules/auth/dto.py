@@ -14,6 +14,19 @@ DEVICE_ID_REGEX = (
 DEVICE_OS_REGEX = r'^(android\s\d+|ios\s\d+(\.\d+)?)$'
 PASSWORD_REGEX = r'^[\x20-\x7E]+$'
 
+FINGERPRINT_REGEX = r'^[a-zA-Z0-9\-]{10,200}$'  # Пример: UUID или нечто подобное
+
+
+class FingerprintValidationMixin:
+    @field_validator("fingerprint", mode="before")
+    @classmethod
+    def validate_fingerprint(cls, value: str) -> str:
+        if not re.fullmatch(FINGERPRINT_REGEX, value):
+            raise ValueError(
+                "Недопустимый fingerprint. Ожидается строка от 10 до 200 символов (только буквы, цифры, дефис)."
+            )
+        return value
+
 
 # Миксины с валидаторами, можно и как обычные классы
 class PasswordValidationMixin:
@@ -66,6 +79,17 @@ class LoginUserWithIPDTO(LoginUserDTO):
     ip: IPvAnyAddress
 
 
+class LoginLawyerDTO(FingerprintValidationMixin, PasswordValidationMixin, BaseModel):
+    email: EmailStr
+    password: str
+    user_agent: str
+    fingerprint: str
+
+
+class LoginLawyerWithIPDTO(LoginLawyerDTO):
+    ip: IPvAnyAddress
+
+
 class RegisterUserDTO(PasswordValidationMixin, DeviceValidationMixin, BaseModel):
     email: EmailStr
     name: str
@@ -101,10 +125,29 @@ class RefreshTokenWithIPModelDTO(RefreshTokenModelDTO):
     ip: IPvAnyAddress
 
 
+class RefreshTokenLawyerModelDTO(FingerprintValidationMixin, BaseModel):
+    refresh_token: uuid.UUID
+    user_agent: str
+    fingerprint: str
+
+
+class RefreshTokenLawyerWithIPModelDTO(RefreshTokenLawyerModelDTO):
+    ip: IPvAnyAddress
+
+
 class LogoutDTO(DeviceIDValidationMixin, BaseModel):
     device_id: str
     refresh_token: uuid.UUID
 
 
 class LogoutWithUserIDDTO(LogoutDTO):
+    user_id: int
+
+
+class LogoutLawyerDTO(FingerprintValidationMixin, BaseModel):
+    fingerprint: str
+    refresh_token: uuid.UUID
+
+
+class LogoutLawyerWithUserIDDTO(LogoutLawyerDTO):
     user_id: int

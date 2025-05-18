@@ -8,13 +8,13 @@ from .auth_handler import decode_jwt
 class JWTHeader(BaseModel):
     user_id: int
     expires: float
-    admin: bool = False
+    lawyer: bool = False
 
 
 class JWTBearer(HTTPBearer):
-    def __init__(self, auto_error: bool = True, admin: bool = False):
+    def __init__(self, auto_error: bool = True, lawyer: bool = False):
         super(JWTBearer, self).__init__(auto_error=auto_error)
-        self.admin = admin
+        self.lawyer = lawyer
 
     async def __call__(self, request: Request) -> JWTHeader:
         authorization: str = request.headers.get("Authorization")
@@ -38,8 +38,8 @@ class JWTBearer(HTTPBearer):
 
         header = JWTHeader(**decoded)
 
-        if self.admin and not header.admin:
-            raise HTTPException(status_code=401, detail="Admin privileges required")
+        if self.lawyer and not header.lawyer:
+            raise HTTPException(status_code=401, detail="Lawyer privileges required")
 
         return header
 

@@ -2,6 +2,8 @@ from .descriptions import (
     login_user_description,
     logout_user_description,
     register_user_description,
+    refresh_token_description,
+    login_lawyer_description,
 )
 from .dto import (
     AuthTokenResponseDTO,
@@ -9,6 +11,17 @@ from .dto import (
     LoginUserWithIPDTO,
     RegisterUserDTO,
     RegisterUserWithIPDTO,
+    LoginLawyerDTO,
+    LoginLawyerWithIPDTO,
+    RefreshTokenLawyerModelDTO,
+    RefreshTokenLawyerWithIPModelDTO,
+    RefreshTokenModelDTO,
+    RefreshTokenWithIPModelDTO,
+    TokenModelDTO,
+    LogoutDTO,
+    LogoutWithUserIDDTO,
+    LogoutLawyerDTO,
+    LogoutLawyerWithUserIDDTO,
 )
 from .response import login_response, logout_response, register_response
 from .route import router
@@ -26,4 +39,17 @@ __all__ = [
     "register_response",
     "login_response",
     "logout_response",
+    "refresh_token_description",
+    "LoginLawyerDTO",
+    "LoginLawyerWithIPDTO",
+    "RefreshTokenModelDTO",
+    "RefreshTokenWithIPModelDTO",
+    "RefreshTokenLawyerModelDTO",
+    "RefreshTokenLawyerWithIPModelDTO",
+    "TokenModelDTO",
+    "LogoutDTO",
+    "LogoutWithUserIDDTO",
+    "LogoutLawyerDTO",
+    "LogoutLawyerWithUserIDDTO",
+    "login_lawyer_description",
 ]
