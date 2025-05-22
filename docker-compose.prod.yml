@@ -14,7 +14,7 @@ services:
     ports:
       - "127.0.0.1:8820:80"
 
-  user_grpc_service:
+  user_prod_grpc_service:
     build:
       context: .
       dockerfile: Dockerfile-grpc
