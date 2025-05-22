@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  prod-app:
+  prod-auth-app:
     restart: always
     build:
       dockerfile: ../Dockerfile
@@ -27,7 +27,7 @@ services:
       - lawly_prod_grpc
       - lawly_prod_db
     depends_on:
-      - prod-app
+      - prod-auth-app
 
 networks:
   lawly_prod_grpc:
