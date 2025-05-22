@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     restart: always
@@ -10,7 +12,7 @@ services:
     env_file:
       - app/.env
     ports:
-      - "127.0.0.1:8800:80"
+      - "${APP_PORT:-127.0.0.1:8800:80}"
 
   user_grpc_service:
     build:
@@ -18,7 +20,7 @@ services:
       dockerfile: Dockerfile-grpc
     restart: always
     ports:
-      - "127.0.0.1:50051:50051"
+      - "${GRPC_PORT:-127.0.0.1:50051:50051}"
     env_file:
       - app/.env
     networks:
