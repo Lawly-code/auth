@@ -27,7 +27,7 @@ services:
       - lawly_prod_grpc
       - lawly_prod_db
     depends_on:
-      - app
+      - prod-app
 
 networks:
   lawly_prod_grpc:
