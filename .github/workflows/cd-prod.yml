@@ -14,4 +14,4 @@ jobs:
         cd /home/lawly-prod/auth
         git fetch --all
         git reset --hard origin/master
-        docker compose -f docker-compose.prod.yml up -d --build
+        docker compose -f docker-compose.prod.yml -p prod up -d --build

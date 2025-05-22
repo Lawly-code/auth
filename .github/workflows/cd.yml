@@ -9,9 +9,9 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Deploy from existing project directory
-      run: |
-        cd /home/lawly/auth
-        git fetch --all
-        git reset --hard origin/development
-        docker compose up -d --build
+      - name: Deploy from existing project directory
+        run: |
+          cd /home/lawly/auth
+          git fetch --all
+          git reset --hard origin/development
+          docker compose -f docker-compose.yml -p dev up -d --build
