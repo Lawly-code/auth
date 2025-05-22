@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
   test_app:
     restart: "no"
     build:
       dockerfile: ./Dockerfile-test
     networks:
-      - ${DB_NETWORK}
-      - ${GRPC_NETWORK}
+      - lawly_db
+      - lawly_grpc
     env_file:
       - .test_env
 
@@ -19,18 +17,18 @@ services:
     env_file:
       - .test_env
     networks:
-      - ${DB_NETWORK}
-      - ${GRPC_NETWORK}
+      - lawly_db
+      - lawly_grpc
 
   test_db:
     image: postgres:14.5
     restart: "no"
     networks:
-      - ${DB_NETWORK}
+      - lawly_db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1234
 
 networks:
-  ${DB_NETWORK}:
-  ${GRPC_NETWORK}:
+  lawly_db:
+  lawly_grpc:

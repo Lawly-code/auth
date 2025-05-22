@@ -7,8 +7,8 @@ services:
       dockerfile: ../Dockerfile
       context: app/
     networks:
-      - lawly_db
-      - lawly_grpc
+      - lawly_prod_db
+      - lawly_prod_grpc
     env_file:
       - app/.env
     ports:
@@ -24,13 +24,13 @@ services:
     env_file:
       - app/.env
     networks:
-      - lawly_grpc
-      - lawly_db
+      - lawly_prod_grpc
+      - lawly_prod_db
     depends_on:
       - app
 
 networks:
-  lawly_grpc:
+  lawly_prod_grpc:
     external: true
-  lawly_db:
+  lawly_prod_db:
     external: true
