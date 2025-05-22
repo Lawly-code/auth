@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   app:
     restart: always
@@ -7,12 +9,12 @@ services:
       dockerfile: ../Dockerfile
       context: app/
     networks:
-      - lawly_db
-      - lawly_grpc
+      - ${DB_NETWORK}
+      - ${GRPC_NETWORK}
     env_file:
       - app/.env
     ports:
-      - "8800:80"
+      - "${APP_PORT}"
 
   user_grpc_service:
     build:
@@ -20,12 +22,12 @@ services:
       dockerfile: Dockerfile-grpc
     restart: always
     ports:
-      - "50051:50051"
+      - "${GRPC_PORT}"
     env_file:
       - app/.env
     networks:
-      - lawly_db
-      - lawly_grpc
+      - ${DB_NETWORK}
+      - ${GRPC_NETWORK}
     depends_on:
       - app
 
@@ -33,16 +35,16 @@ services:
     image: postgres:14.5
     restart: always
     networks:
-      - lawly_db
+      - ${DB_NETWORK}
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1234
     volumes:
       - ./lawly_db_data:/var/lib/postgresql/data
     ports:
-      - "5458:5432"
+      - "${DB_PORT}"
 
 networks:
-  lawly_grpc:
+  ${GRPC_NETWORK}:
     external: true
-  lawly_db:
+  ${DB_NETWORK}:
