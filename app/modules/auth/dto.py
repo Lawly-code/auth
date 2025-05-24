@@ -11,7 +11,7 @@ DEVICE_ID_REGEX = (
     r'[A-Z0-9]+\.[0-9]{6}\.[0-9]{3}(?:\.[A-Z0-9]+)?'
     r')$'
 )
-DEVICE_OS_REGEX = r'(?i)^(android|ios)\s\d+(\.\d+){0,2}$'
+DEVICE_OS_REGEX = r'^(android|ios)\s\d+(\.\d+){0,2}$'
 PASSWORD_REGEX = r'^[\x20-\x7E]+$'
 
 FINGERPRINT_REGEX = r'^[a-zA-Z0-9\-]{10,200}$'  # Пример: UUID или нечто подобное
